@@ -1,4 +1,6 @@
 {
   "version": 2,
-  "projects": {}
+  "projects": {
+    "weweb-site": "packages/weweb-site"
+  }
 }
