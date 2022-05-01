@@ -1,0 +1,2 @@
+import{h as t,i as e,j as o,k as i,l as r,m as n,o as l,q as p}from"/build/_shared/chunk-44I7NOWX.js";e();e();var m=()=>({charset:"utf-8",title:"New Remix App",viewport:"width=device-width,initial-scale=1"});function d(){return t.createElement("html",{lang:"en"},t.createElement("head",null,t.createElement(r,null),t.createElement(i,null)),t.createElement("body",null,t.createElement(o,null),t.createElement(p,null),t.createElement(n,null),t.createElement(l,null)))}export{d as default,m as meta};
+//# sourceMappingURL=/build/root-JO63RMQP.js.map

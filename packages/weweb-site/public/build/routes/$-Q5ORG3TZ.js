@@ -1,0 +1,1 @@
+import{a as r,b as e,c as n}from"/build/_shared/chunk-7PLIX3OY.js";import"/build/_shared/chunk-2B2WBRR3.js";import{h as o,i as t,n as a}from"/build/_shared/chunk-5SME6BMN.js";t();t();function m(){let{renderData:p,page:i}=a();return o.createElement(r,{loader:n,prefetchedData:p},o.createElement(e,{component:`/${i}`}))}export{m as default};

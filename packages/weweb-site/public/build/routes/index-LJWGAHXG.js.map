@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["browser-route-module:/Users/hector/code_projects/WeWeb/we-web/packages/weweb-site/app/routes/index.tsx?browser", "../../../app/routes/index.tsx"],
+  "sourcesContent": ["export { default } from \"/Users/hector/code_projects/WeWeb/we-web/packages/weweb-site/app/routes/index.tsx\";", "// This page will show up at the route /mypage\n\nimport {\n  PlasmicRootProvider,\n  PlasmicComponent,\n} from \"@plasmicapp/loader-react\";\nimport { PLASMIC } from \"../plasmic-init\";\nimport { useLoaderData } from \"@remix-run/react\";\nimport { json } from \"@remix-run/node\";\n\n// Fetch the data needed to render Plasmic pages or components, server-side.\nexport const loader = async () => {\n  // You can pass in multiple page paths or component names.\n  const plasmicData = await PLASMIC.fetchComponentData(\"/\");\n  return json(plasmicData);\n};\n\n// Render the page or component from Plasmic.\nexport default function MyPage() {\n  const plasmicData = useLoaderData();\n  return (\n    <PlasmicRootProvider loader={PLASMIC} prefetchedData={plasmicData}>\n      <PlasmicComponent component=\"/\" />\n    </PlasmicRootProvider>\n  );\n}\n"],
+  "mappings": "0KAAA,ICAA,IAkBe,YAAkB,CAC/B,GAAM,GAAc,IACpB,MACE,iBAAC,EAAD,CAAqB,OAAQ,EAAS,eAAgB,GACpD,gBAAC,EAAD,CAAkB,UAAU",
+  "names": []
+}
