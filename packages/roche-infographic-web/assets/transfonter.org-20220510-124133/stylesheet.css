@@ -1,0 +1,32 @@
+@font-face {
+    font-family: 'Roche Sans Light';
+    src: url('fonts/RocheSansLight-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roche Sans Light';
+    src: url('fonts/RocheSansLight-Medium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roche Sans';
+    src: url('fonts/RocheSans-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roche Sans';
+    src: url('fonts/RocheSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
