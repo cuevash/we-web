@@ -13,3 +13,13 @@
 ## 2022/05/02
 
 * Learning the details of Plasmic.
+
+## 2022/05/23
+
+* Creating the text for the WeCode web page based upon the Bejammas web page.
+
+
+## 2022/06/01
+
+* Exported the design pdf file into an html app with wondershare (in free trial mode).
+* Trying to modify the text in the html with visual studio. 

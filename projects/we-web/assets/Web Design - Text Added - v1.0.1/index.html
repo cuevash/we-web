@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="style/style.css" />
+
+    <style type="text/css" media="print">
+      .noprint {
+        display: none;
+      }
+
+      .print {
+        display: block !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <header class="el-header noprint">
+        <div class="icon-btns">
+          <i class="icon-list" @click="changeLeftMenu"></i>
+          <i
+            class="icon-skip_previous"
+            v-bind:class="{'disabled': currentPage == 1}"
+            @click="changeCurrentPage('first')"
+          ></i>
+          <i
+            class="icon-play_arrow prev-icon"
+            v-bind:class="{'disabled': currentPage == 1}"
+            @click="changeCurrentPage('prev')"
+          ></i>
+          <i
+            class="icon-play_arrow"
+            v-bind:class="{'disabled': currentPage == pageNum}"
+            @click="changeCurrentPage('next')"
+          ></i>
+          <i
+            class="icon-skip_next"
+            v-bind:class="{'disabled': currentPage == pageNum}"
+            @click="changeCurrentPage('last')"
+          ></i>
+          <select v-model="currentPage">
+            <option v-for="page in pageNum" v-bind:value="page">
+              page {{ page }}
+            </option>
+          </select>
+          <i
+            class="icon-zoom_in"
+            v-bind:class="{'disabled': zoomNum == 2}"
+            @click="modifyZoom('in')"
+          ></i>
+          <select v-model="zoomNum">
+            <option value="0.5">50%</option>
+            <option value="0.6" selected>60%</option>
+            <option value="0.7">70%</option>
+            <option value="0.8">80%</option>
+            <option value="0.9">90%</option>
+            <option value="1.0">100%</option>
+            <option value="1.1">110%</option>
+            <option value="1.2">120%</option>
+            <option value="1.3">130%</option>
+            <option value="1.4">140%</option>
+            <option value="1.5">150%</option>
+            <option value="1.6">160%</option>
+            <option value="1.7">170%</option>
+            <option value="1.8">180%</option>
+            <option value="1.9">190%</option>
+            <option value="2.0">200%</option>
+          </select>
+          <i
+            class="icon-zoom_out"
+            v-bind:class="{'disabled': zoomNum == 0.5}"
+            @click="modifyZoom('out')"
+          ></i>
+          <i class="icon-format_align_left" @click="textAlign = 'left'"></i>
+          <i class="icon-format_align_center" @click="textAlign = 'center'"></i>
+          <i class="icon-format_align_right" @click="textAlign = 'right'"></i>
+          <i class="icon-print" @click="window.print()"></i>
+        </div>
+      </header>
+
+      <aside class="noprint" width="240px" v-show="ifMenuShow">
+        <nav class="tabNav">
+          <ul>
+            <li
+              v-bind:class="{ 'curr': currentNav == 0 }"
+              @click="currentNav = 0"
+            >
+              Page
+            </li>
+            <li
+              v-bind:class="{ 'curr': currentNav == 1 }"
+              @click="currentNav = 1"
+            >
+              Bookmark
+            </li>
+          </ul>
+
+          <div class="clear"></div>
+        </nav>
+
+        <div
+          class="tab-conent scrollbar"
+          v-bind:style="{ height: asideHeight + 'px' }"
+        >
+          <section v-show="currentNav == 0">
+            <ul class="page-menu">
+              <li
+                v-for="page in pageNum"
+                v-bind:class="{ 'curr': currentPage == page }"
+                @click="changePage(page)"
+              >
+                <i class="icon-file-text2"></i> page {{ page }}
+              </li>
+            </ul>
+          </section>
+
+          <section v-show="currentNav == 1">
+            <ul class="page-menu">
+              <li
+                v-for="page in pageNum"
+                v-bind:class="{ 'curr': currentPage == page }"
+                @click="changePage(page)"
+              >
+                <i class="icon-turned_in_not"></i> Bookmark {{ page }}
+              </li>
+            </ul>
+          </section>
+        </div>
+      </aside>
+      <div
+        class="main scrollbar noprint"
+        v-bind:style="{ height: mainHeight + 'px' }"
+        v-bind:class="{ 'mainLeftM': ifMenuShow, 'aleft': textAlign === 'left','acenter': textAlign === 'center','aright': textAlign === 'right'}"
+      >
+        <div class="conent" v-html="pageContent" v-bind:style="zoomStyle"></div>
+
+        <div class="clear"></div>
+      </div>
+
+      <!--专门只为打印的内容-->
+      <div
+        class="conent print"
+        style="display: none"
+        v-html="pageContent"
+      ></div>
+    </div>
+  </body>
+  <!-- 先引入 Vue -->
+  <script src="js/vue.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: function () {
+        return {
+          // visible: false,
+          isCollapse: false,
+          currentNav: 0,
+          activeName2: 'first',
+          pageNum: 1,
+          currentPage: 1,
+          pageContent: '',
+          asideHeight: 300,
+          mainHeight: 300,
+          ifMenuShow: true,
+          zoomNum: '1.0',
+          textAlign: 'left',
+          zoomStyle: {},
+          pageDatas: [
+            '<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="6608.000000" width="2015.000000" src ="bgimg/bg00001.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:1287.552734px;left:873.696045px"><nobr>Jamstack Love! </nobr></span></span></p><p><span style="font-family:Arial;font-size:42.000000px;font-weight:bold;color:#14042A;"><span style="position:absolute;top:1422.359985px;left:873.694031px"><nobr>Website performance is what </nobr></span></span></p><p><span style="font-family:Arial;font-size:42.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:1489.561890px;left:873.694031px"><nobr>makes or breaks <span style="color:#14042A;">businesses nowadays. </span></nobr></span></span></p><p><span style="font-family:Arial;font-size:28.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:1630.653931px;left:873.694031px"><nobr>We\'ll help you build a fast and modern website, PWA, or </nobr></span><span style="position:absolute;top:1675.455444px;left:873.694031px"><nobr>ecommerce store that will bring you customers and stay </nobr></span><span style="position:absolute;top:1720.256836px;left:873.694031px"><nobr>on top of your competition. Top notch custom web </nobr></span><span style="position:absolute;top:1765.058228px;left:873.694031px"><nobr>development solutions aligned with your business goals. </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:4663.498047px;left:656.561157px"><nobr>Building the web </nobr></span></span></p><p><span style="font-family:Arial;font-size:33.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:4837.397461px;left:322.767639px"><nobr>Every project is a new story, yet some things stay the same. We pick a </nobr></span><span style="position:absolute;top:4890.199219px;left:322.767639px"><nobr>dedicated set of tools for each one, for the best performance possible. </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:313.748047px;left:193.769485px"><nobr>We build</nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:424.151031px;left:193.769485px"><nobr>fast  &amp; gorgeous apps and sites. </nobr></span></span></p><p><span style="font-family:Arial;font-size:36.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:575.773438px;left:193.769485px"><nobr>Get a real presence and reach all your business potential with </nobr></span><span style="position:absolute;top:633.375671px;left:193.769485px"><nobr>strong websites made up with the latest web technologies </nobr></span><span style="position:absolute;top:690.976563px;left:193.769485px"><nobr>combined with a strong no-code approach for the design. </nobr></span></span></p><p><span style="font-family:Arial;font-size:34.875301px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:867.458984px;left:258.920532px"><nobr>Start project </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:3823.339355px;left:113.580666px"><nobr>Traffic goes up? Some traffic spikes? No worries!</nobr></span><span style="position:absolute;top:3860.546387px;left:113.580666px"><nobr>Your Jamstack sites files are in a cloud enviroment</nobr></span><span style="position:absolute;top:3897.754395px;left:113.580666px"><nobr>with CDN that handles requests without sweating. <span style="font-family:宋体;">’ </span><span style="font-family:Arial;">static files in a multi-cloud </span></nobr></span><span style="position:absolute;top:3934.961914px;left:113.580666px"><nobr>environment on a CDN with no traffic </nobr></span><span style="position:absolute;top:3972.169189px;left:113.580666px"><nobr>limitations. </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:4071.358398px;left:113.580666px"><nobr>See more &gt;&gt; </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.539001px;font-weight:bold;color:#000000;"><span style="position:absolute;top:3686.670898px;left:113.580666px"><nobr>Progressive Web </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.539001px;font-weight:bold;color:#000000;"><span style="position:absolute;top:3732.334717px;left:113.580666px"><nobr>Applications </nobr></span></span></p><p><span style="font-family:Arial;font-size:38.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4287.474609px;left:586.513000px"><nobr>Ready to help you with your project? </nobr></span></span></p><p><span style="font-family:Arial;font-size:44.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:2859.176758px;left:395.429779px"><nobr>Wonder how can we help your business grow? </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4444.547852px;left:900.454956px"><nobr>Start project </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:3019.127686px;left:900.454956px"><nobr>Start project </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6366.399414px;left:203.835342px"><nobr>We are a Digital Marketing agency </nobr></span><span style="position:absolute;top:6401.599609px;left:203.835342px"><nobr>specialized in Visual storytelling &amp; </nobr></span><span style="position:absolute;top:6436.800781px;left:203.835342px"><nobr>Information design. </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6353.726563px;left:893.227356px"><nobr>hola@bilayer.es </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:6286.691406px;left:893.217529px"><nobr>Escríbenos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6353.731934px;left:1240.225830px"><nobr>+34 620 50 94 27 </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:6286.691406px;left:1240.225830px"><nobr>Llámanos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6353.731934px;left:1592.657104px"><nobr>Paseo de la Virgen </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6388.933105px;left:1592.657104px"><nobr>del Puerto, 39 </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6424.134277px;left:1592.657104px"><nobr>28005 Madrid </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:6459.334473px;left:1592.657104px"><nobr>(España) </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:6286.691406px;left:1592.657104px"><nobr>Estamos aquí </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:3823.339355px;left:755.916138px"><nobr>Traffic bigger than usual? Not an issue </nobr></span><span style="position:absolute;top:3860.546387px;left:755.916138px"><nobr>with the Jamstack sites - you host your </nobr></span><span style="position:absolute;top:3897.754395px;left:755.916138px"><nobr>websites <span style="font-family:宋体;">’ </span><span style="font-family:Arial;">static files in a multi-cloud </span></nobr></span><span style="position:absolute;top:3934.961914px;left:755.916138px"><nobr>environment on a CDN with no traffic </nobr></span><span style="position:absolute;top:3972.169189px;left:755.916138px"><nobr>limitations. </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:4071.358398px;left:755.916138px"><nobr>See more &gt;&gt; </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.539001px;font-weight:bold;color:#000000;"><span style="position:absolute;top:3686.670898px;left:755.916138px"><nobr>Jamstack websites </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:3823.339355px;left:1409.931152px"><nobr>Traffic bigger than usual? Not an issue </nobr></span><span style="position:absolute;top:3860.546387px;left:1409.931152px"><nobr>with the Jamstack sites - you host your </nobr></span><span style="position:absolute;top:3897.754395px;left:1409.931152px"><nobr>websites <span style="font-family:宋体;">’ </span><span style="font-family:Arial;">static files in a multi-cloud </span></nobr></span><span style="position:absolute;top:3934.961914px;left:1409.931152px"><nobr>environment on a CDN with no traffic </nobr></span><span style="position:absolute;top:3972.169189px;left:1409.931152px"><nobr>limitations. </nobr></span></span></p><p><span style="font-family:Arial;font-size:23.254000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:4071.358398px;left:1409.931152px"><nobr>See more &gt;&gt; </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.539001px;font-weight:bold;color:#000000;"><span style="position:absolute;top:3686.670898px;left:1409.931152px"><nobr>eCommerce </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3501.989502px;left:136.636139px"><nobr>L o re m i psu m d ol o r si t a met , c on se ct et u er a d i p is cin g e lit, se d </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3511.614258px;left:136.636139px"><nobr>di a m n o n ummy n ib h e u is mod t in ci d u n t ut l a or e e t d ol o re magna. </nobr></span></span></p><p><span style="font-family:Arial;font-size:4.653900px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3422.983154px;left:136.636139px"><nobr>L A N D I NG PAGE DESIGN </nobr></span><span style="position:absolute;top:3429.732666px;left:135.554001px"><nobr><span style="font-family:MT Extra;font-size:19.781601px;color:#263AED;">PERFORMANCE </span></nobr></span></span></p><p><span style="font-family:MT Extra;font-size:19.781601px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3458.878418px;left:135.554001px"><nobr>ULTRABOOK </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3545.899170px;left:220.783203px"><nobr>NOT NOW </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:3545.899170px;left:146.542267px"><nobr>JOIN NOW </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:3.475300px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3342.875732px;left:241.008408px"><nobr>HO ME AB OU T U S P OR TFO LI O C ONT ACT US </nobr></span></span></p><p><span style="font-family:Arial;font-size:6.073300px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3339.219482px;left:156.244125px"><nobr>YOUR LOGO </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3501.989502px;left:774.543640px"><nobr>Lo re m ip su m do lo r s it a me t , co n se ct e t ue r adi pi sci n g e li t, s ed </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3511.614258px;left:774.543640px"><nobr>di am n o n um my n ibh e ui s m od t i n cid un t u t l ao re e t do l o re m ag na. </nobr></span></span></p><p><span style="font-family:Arial;font-size:4.653900px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3422.983154px;left:774.543640px"><nobr>L ANDING PAGE DESIGN </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:19.781601px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3429.732666px;left:773.461609px"><nobr>PERFORMANCE </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:19.781601px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3458.878418px;left:773.461609px"><nobr>ULTRABOOK </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3545.899170px;left:858.690857px"><nobr>NOT NOW </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:3545.899170px;left:784.449951px"><nobr>JOIN NOW </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:3.475300px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3342.875732px;left:878.916016px"><nobr>H OM E ABO UT US P OR T F OL I O CO NT AC T US </nobr></span></span></p><p><span style="font-family:Arial;font-size:6.073300px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3339.219482px;left:794.151672px"><nobr>YOUR LOGO </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3501.989502px;left:1436.423218px"><nobr>L o rem ip s um do l o r s i t amet , co ns e ctet ue r ad ip is ci ng el it, s ed </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:4.010100px;font-style:normal;font-weight:normal;color:#7C8085;"><span style="position:absolute;top:3511.614258px;left:1436.423218px"><nobr>d iam no nu mmy n ib h e ui sm o d tin cid un t u t lao re et do l o re mag na. </nobr></span></span></p><p><span style="font-family:Arial;font-size:4.653900px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3422.983154px;left:1436.423218px"><nobr>L A NDIN G PA G E DESIGN </nobr></span><span style="position:absolute;top:3429.732666px;left:1435.341187px"><nobr><span style="font-family:MT Extra;font-size:19.781601px;color:#263AED;">PERFORMANCE </span></nobr></span></span></p><p><span style="font-family:MT Extra;font-size:19.781601px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3458.878418px;left:1435.341187px"><nobr>ULTRABOOK </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3545.899170px;left:1520.570313px"><nobr>NOT NOW </nobr></span></span></p><p><span style="font-family:MT Extra;font-size:4.879100px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:3545.899170px;left:1446.329468px"><nobr>JOIN NOW </nobr></span></span></p><p><span style="font-family:Open Sans;font-size:3.475300px;font-weight:bold;color:#263AED;"><span style="position:absolute;top:3342.875732px;left:1540.795532px"><nobr>HO M E AB OUT US P O R T FO L IO CO N T ACT US </nobr></span></span></p><p><span style="font-family:Arial;font-size:6.073300px;font-weight:bold;color:#863DEB;"><span style="position:absolute;top:3339.219482px;left:1456.031250px"><nobr>YOUR LOGO </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.156898px;left:1264.062500px"><nobr>Services Contact </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.156898px;left:1055.209229px"><nobr>Home </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:2181.114990px;left:359.790405px"><nobr>No need for databases, </nobr></span><span style="position:absolute;top:2216.315674px;left:359.790405px"><nobr>so there’s no time-consuming getting the data from multiple queries </nobr></span><span style="position:absolute;top:2251.516846px;left:359.790405px"><nobr>Static websites are really much faster what gives a great UX. </nobr></span><span style="position:absolute;top:2286.717773px;left:359.790405px"><nobr> </nobr></span></span></p><p><span style="font-family:Arial;font-size:44.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:2073.330811px;left:359.790405px"><nobr>Swift </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:2538.483643px;left:359.790405px"><nobr>Traffic bigger than usual? Not an issue with </nobr></span><span style="position:absolute;top:2573.684570px;left:359.790405px"><nobr>the Jamstack sites - you host your websites <span style="font-family:宋体;">’ </span></nobr></span><span style="position:absolute;top:2608.885986px;left:359.790405px"><nobr>static files in a multi-cloud environment on a </nobr></span><span style="position:absolute;top:2644.086914px;left:359.790405px"><nobr>CDN with no traffic limitations. </nobr></span></span></p><p><span style="font-family:Arial;font-size:44.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:2430.701172px;left:359.790405px"><nobr>Stable </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:2181.114990px;left:1272.997314px"><nobr>Framewoks that depend on plugins , like WordPress, </nobr></span><span style="position:absolute;top:2216.315674px;left:1272.997314px"><nobr>are quite susceptible to attacks. </nobr></span><span style="position:absolute;top:2251.516846px;left:1272.997314px"><nobr>Sites rendered in a static way with no plugins are a fortress </nobr></span><span style="position:absolute;top:2286.717773px;left:1272.997314px"><nobr>and let you save time and money on security. </nobr></span></span></p><p><span style="font-family:Arial;font-size:44.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:2073.330811px;left:1269.826782px"><nobr>Safe </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-style:normal;font-weight:normal;color:#14042A;"><span style="position:absolute;top:2538.483643px;left:1272.997314px"><nobr>Implementing new features to your project? </nobr></span><span style="position:absolute;top:2573.684570px;left:1272.997314px"><nobr>Serverless architecture scales automatically as </nobr></span><span style="position:absolute;top:2608.885986px;left:1272.997314px"><nobr>your usage or user base extends, so you can </nobr></span><span style="position:absolute;top:2644.086914px;left:1272.997314px"><nobr>scale your app or site without hassle. </nobr></span></span></p><p><span style="font-family:Arial;font-size:44.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:2430.701172px;left:1269.826782px"><nobr>Scalable </nobr></span></span></p>',
+            '<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="5931.000000" width="2015.000000" src ="bgimg/bg00002.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:78.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:465.281891px;left:1223.825439px"><nobr>People and </nobr></span></span></p><p><span style="font-family:Arial;font-size:78.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:590.095703px;left:1223.825439px"><nobr>search engines </nobr></span></span></p><p><span style="font-family:Arial;font-size:78.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:714.908875px;left:1223.825439px"><nobr>love fast </nobr></span></span></p><p><span style="font-family:Arial;font-size:78.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:839.721985px;left:1223.825439px"><nobr>websites. </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5675.652344px;left:203.835342px"><nobr>We are a Digital Marketing agency </nobr></span><span style="position:absolute;top:5710.855957px;left:203.835342px"><nobr>specialized in Visual storytelling &amp; </nobr></span><span style="position:absolute;top:5746.060059px;left:203.835342px"><nobr>Information design. </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5662.979004px;left:893.227356px"><nobr>hola@bilayer.es </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:5595.938477px;left:893.218201px"><nobr>Escríbenos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5662.984375px;left:1240.226440px"><nobr>+34 620 50 94 27 </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:5595.938477px;left:1240.225830px"><nobr>Llámanos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5662.984375px;left:1592.657715px"><nobr>Paseo de la Virgen </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5698.188477px;left:1592.657715px"><nobr>del Puerto, 39 </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5733.392090px;left:1592.657715px"><nobr>28005 Madrid </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5768.595703px;left:1592.657715px"><nobr>(España) </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:5595.938477px;left:1592.657715px"><nobr>Estamos aquí </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:1324.718750px;left:139.949860px"><nobr>Jamstack </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2084.903320px;left:147.953857px"><nobr>How Jamstack </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2195.314697px;left:147.953857px"><nobr>supports your </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2305.726563px;left:147.953857px"><nobr>marketing </nobr></span></span></p><p><span style="font-family:Arial;font-size:32.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:1548.141235px;left:139.949188px"><nobr>Jamstack approach enables you to run a fully </nobr></span><span style="position:absolute;top:1599.346313px;left:139.949188px"><nobr>dynamic site while the actual assets are </nobr></span><span style="position:absolute;top:1650.552124px;left:139.949188px"><nobr>pre-rendered static files deployed on CDN. For </nobr></span><span style="position:absolute;top:1701.757202px;left:139.949188px"><nobr>you, it means faster, more secure, more reliable </nobr></span><span style="position:absolute;top:1752.962891px;left:139.949188px"><nobr>websites with better SEO ranking capabilities and </nobr></span><span style="position:absolute;top:1804.168335px;left:139.949188px"><nobr>happier users overall. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2130.390625px;left:834.294922px"><nobr>Excellent performance </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2220.527344px;left:834.294922px"><nobr>No database means no </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2262.131592px;left:834.294922px"><nobr>time-consuming multiple queries. </nobr></span><span style="position:absolute;top:2303.736084px;left:834.294922px"><nobr>Static sites are faster sites, even </nobr></span><span style="position:absolute;top:2345.340820px;left:834.294922px"><nobr>up to 10x. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2130.390625px;left:1444.494141px"><nobr>SEO Advantage </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2226.927490px;left:1444.494141px"><nobr>Going static also means better </nobr></span><span style="position:absolute;top:2268.531982px;left:1444.494141px"><nobr>ranking possibilities, what equals </nobr></span><span style="position:absolute;top:2310.135986px;left:1444.494141px"><nobr>more traffic and more $$$. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2630.547607px;left:834.294922px"><nobr>No-sweat content </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2678.552734px;left:834.294922px"><nobr>management </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2775.089355px;left:834.294922px"><nobr>Headless CMSes let you build a </nobr></span><span style="position:absolute;top:2816.694092px;left:834.294922px"><nobr>website that is both easy to use </nobr></span><span style="position:absolute;top:2858.298096px;left:834.294922px"><nobr>and customize freely. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2630.547607px;left:1444.494141px"><nobr>Reliable uptime &amp; lower </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2678.552734px;left:1444.494141px"><nobr>costs </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2775.089355px;left:1444.494141px"><nobr>With Jamstack marketing </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2816.694092px;left:1444.494141px"><nobr>websites uptime is anytime. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2616.490234px;left:147.949860px"><nobr>Safety </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2713.026855px;left:147.949860px"><nobr>Static websites with no plugins or </nobr></span><span style="position:absolute;top:2754.631104px;left:147.949860px"><nobr>databases are like a fortress. </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2796.235596px;left:147.949860px"><nobr>Plus, more secure site means </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:2837.840332px;left:147.949860px"><nobr>fewer security expenses. </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#68D0C6;"><span style="position:absolute;top:3413.571045px;left:894.257935px"><nobr>Progressive web-app </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#68D0C6;"><span style="position:absolute;top:4173.755371px;left:147.953857px"><nobr>How Jamstack </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#68D0C6;"><span style="position:absolute;top:4284.166504px;left:147.953857px"><nobr>supports your </nobr></span></span></p><p><span style="font-family:Arial;font-size:69.000000px;font-weight:bold;color:#68D0C6;"><span style="position:absolute;top:4394.578613px;left:147.953857px"><nobr>PWA </nobr></span></span></p><p><span style="font-family:Arial;font-size:32.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:3636.993408px;left:894.257935px"><nobr>With PWAs you are offering the best of Native App </nobr></span><span style="position:absolute;top:3688.198730px;left:894.257935px"><nobr>and Web technology at your users <span style="font-family:宋体;">’ </span><span style="font-family:Arial;">fingertips. Going </span></nobr></span><span style="position:absolute;top:3739.404541px;left:894.257935px"><nobr>Jamstack way will help you accelerate your customer </nobr></span><span style="position:absolute;top:3790.609863px;left:894.257935px"><nobr>engagement even more. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4219.243164px;left:834.294922px"><nobr>Incredible mobile experience </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4309.379395px;left:834.294922px"><nobr>PWAs deliver an app-like </nobr></span><span style="position:absolute;top:4350.983887px;left:834.294922px"><nobr>experience in the browser without </nobr></span><span style="position:absolute;top:4392.588379px;left:834.294922px"><nobr>the need to download an app. </nobr></span><span style="position:absolute;top:4434.192871px;left:834.294922px"><nobr>Plus they create a rich, capable </nobr></span><span style="position:absolute;top:4475.797852px;left:834.294922px"><nobr>user experience, even when the </nobr></span><span style="position:absolute;top:4517.401855px;left:834.294922px"><nobr>user is offline. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4219.243164px;left:1444.494141px"><nobr>One development </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4315.780273px;left:1444.494141px"><nobr>Don ’t bother building many </nobr></span><span style="position:absolute;top:4357.384766px;left:1444.494141px"><nobr>platforms for different OSes and </nobr></span><span style="position:absolute;top:4398.988770px;left:1444.494141px"><nobr>devices. Save money instead - </nobr></span><span style="position:absolute;top:4440.593262px;left:1444.494141px"><nobr>PWAs blur the line between </nobr></span><span style="position:absolute;top:4482.197754px;left:1444.494141px"><nobr>websites and mobile apps. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4719.398438px;left:834.294922px"><nobr>Scalability </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4815.935547px;left:834.294922px"><nobr>PWAs are great for moving web </nobr></span><span style="position:absolute;top:4857.540527px;left:834.294922px"><nobr>apps to mobile devices. The </nobr></span><span style="position:absolute;top:4899.144531px;left:834.294922px"><nobr>serverless architecture scales </nobr></span><span style="position:absolute;top:4940.749023px;left:834.294922px"><nobr>automatically as your user base </nobr></span><span style="position:absolute;top:4982.353516px;left:834.294922px"><nobr>or usage increases. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4719.398438px;left:1444.494141px"><nobr>Low-cost </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4815.935547px;left:1444.494141px"><nobr>With Jamstack, your PWA can be </nobr></span><span style="position:absolute;top:4857.540527px;left:1444.494141px"><nobr>hosted like any static site. </nobr></span><span style="position:absolute;top:4899.144531px;left:1444.494141px"><nobr>Nothing minimizes hosting </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4940.749023px;left:1444.494141px"><nobr>expenses better than serving </nobr></span><span style="position:absolute;top:4982.353516px;left:1444.494141px"><nobr>static assets from the CNDs. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:4705.342285px;left:147.949860px"><nobr>Great performance </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:4801.879883px;left:147.949860px"><nobr>By cache site assets, you get an </nobr></span><span style="position:absolute;top:4843.484375px;left:147.949860px"><nobr>incredibly fast native mobile </nobr></span><span style="position:absolute;top:4885.088379px;left:147.949860px"><nobr>platform feel with many of the </nobr></span><span style="position:absolute;top:4926.693359px;left:147.949860px"><nobr>benefits of a web app, in your </nobr></span><span style="position:absolute;top:4968.297852px;left:147.949860px"><nobr>browser. </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:3111.092529px;left:845.854797px"><nobr>Start project </nobr></span></span></p><p><span style="font-family:Arial;font-size:28.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:5276.964844px;left:845.854797px"><nobr>Start project </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.162758px;left:1264.062500px"><nobr>Services Contact </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.162758px;left:1055.209229px"><nobr>Home </nobr></span></span></p><p><span style="font-family:Arial;font-size:36.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:372.978516px;left:1223.825439px"><nobr>Services </nobr></span></span></p>',
+            '<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="2592.000000" width="2015.000000" src ="bgimg/bg00003.jpg"/></nobr></div><p><span style="font-family:MT Extra;font-size:107.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:403.136871px;left:1223.825439px"><nobr>Let ʼs </nobr></span></span></p><p><span style="font-family:Arial;font-size:107.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:574.348328px;left:1223.825439px"><nobr>Talk </nobr></span></span></p><p><span style="font-family:Arial;font-size:36.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:319.627594px;left:1223.825439px"><nobr>Contact </nobr></span></span></p><p><span style="font-family:Arial;font-size:37.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:1097.072876px;left:212.662796px"><nobr>Tell us about your project, </nobr></span><span style="position:absolute;top:1156.276855px;left:212.662796px"><nobr>get a quick estimate and a </nobr></span><span style="position:absolute;top:1215.480713px;left:212.662796px"><nobr>plan for making it live. </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:1354.634155px;left:212.662796px"><nobr>Call us </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:1444.768555px;left:212.662796px"><nobr>+34 620 50 94 27 </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:1581.849854px;left:212.662796px"><nobr>Write us </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:1671.984375px;left:212.662796px"><nobr>ask@wecode.es </nobr></span></span></p><p><span style="font-family:Arial;font-size:30.000000px;font-weight:bold;color:#000000;"><span style="position:absolute;top:1796.264038px;left:212.662796px"><nobr>Adress </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:1886.398438px;left:212.662796px"><nobr>Paseo de la Virgen del Puerto, 39 </nobr></span><span style="position:absolute;top:1928.001343px;left:212.662796px"><nobr>28005 Madrid (Spain) </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2359.482910px;left:211.472000px"><nobr>We are a Digital Marketing agency </nobr></span><span style="position:absolute;top:2394.685303px;left:211.472000px"><nobr>specialized in Visual storytelling &amp; </nobr></span><span style="position:absolute;top:2429.887695px;left:211.472000px"><nobr>Information design. </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2346.810059px;left:900.864014px"><nobr>hola@bilayer.es </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2279.772705px;left:900.854065px"><nobr>Escríbenos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2346.815430px;left:1247.862793px"><nobr>+34 620 50 94 27 </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2279.772705px;left:1247.862793px"><nobr>Llámanos </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2346.815430px;left:1600.293579px"><nobr>Paseo de la Virgen </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2382.017822px;left:1600.293579px"><nobr>del Puerto, 39 </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2417.220215px;left:1600.293579px"><nobr>28005 Madrid </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:2452.422607px;left:1600.293579px"><nobr>(España) </nobr></span></span></p><p><span style="font-family:Arial;font-size:26.000000px;font-weight:bold;color:#00FF7F;"><span style="position:absolute;top:2279.772705px;left:1600.293579px"><nobr>Estamos aquí </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.159508px;left:1264.062500px"><nobr>Services Contact </nobr></span></span></p><p><span style="font-family:Arial;font-size:22.000000px;font-weight:bold;color:#FFFFFF;"><span style="position:absolute;top:98.159508px;left:1055.209229px"><nobr>Home </nobr></span></span></p>',
+          ],
+        };
+      },
+      mounted: function () {
+        this.$nextTick(function () {
+          this.pageNum = this.pageDatas.length;
+          this.pageContent = this.pageDatas[0];
+
+          this.setLeftMenuHeight();
+        });
+      },
+      watch: {
+        currentPage: function (newVal, oldValue) {
+          // console.log('newVal ' + newVal, 'oldValue ' + oldValue);
+          if (newVal) {
+            this.pageContent = this.pageDatas[this.currentPage - 1];
+          }
+        },
+        zoomNum: function (newVal, oldValue) {
+          if (newVal) {
+            this.zoomStyle = {
+              transform: 'scale(' + newVal + ')',
+              '-webkit-transform': 'scale(' + newVal + ')',
+              '-ms-transform': 'scale(' + newVal + ')',
+              '-moz-transform': 'scale(' + newVal + ')',
+              '-o-transform': 'scale(' + newVal + ')',
+            };
+          }
+        },
+      },
+      methods: {
+        changeCurrentPage: function (methods) {
+          switch (methods) {
+            case 'first':
+              this.currentPage = 1;
+              break;
+            case 'prev':
+              if (this.currentPage > 1) {
+                this.currentPage -= 1;
+              }
+              break;
+            case 'next':
+              if (this.currentPage < this.pageNum) {
+                this.currentPage += 1;
+              }
+              break;
+            case 'last':
+              this.currentPage = this.pageNum;
+              break;
+          }
+        },
+
+        gotoPage: function (page) {
+          console.log(page);
+          this.currentPage = page;
+        },
+        modifyZoom: function (type) {
+          switch (type) {
+            case 'in':
+              if (this.zoomNum < 2) {
+                // this.zoomNum = (this.zoomNum + 0.1).toFixed(1);
+                this.zoomNum = (parseFloat(this.zoomNum) + 0.1).toFixed(1);
+              }
+              break;
+            case 'out':
+              if (this.zoomNum > 0.5) {
+                this.zoomNum = (parseFloat(this.zoomNum) - 0.1).toFixed(1);
+              }
+              break;
+            default:
+              break;
+          }
+          console.log(this.zoomNum);
+        },
+        setLeftMenuHeight: function () {
+          // this.asideHeight = document.body.scrollHeight - 60;
+          this.mainHeight = document.documentElement.clientHeight - 60 - 20;
+          // 60为头部导航高度， 46为menu高度， 40为上下padding
+          this.asideHeight = this.mainHeight - 20 - 46;
+        },
+        changePage: function (page) {
+          this.currentPage = page;
+          // this.pageContent = this.pageDatas[page - 1];
+        },
+        changeLeftMenu: function () {
+          this.ifMenuShow = !this.ifMenuShow;
+        },
+      },
+    });
+
+    function gotoPage(page) {
+      console.log(page);
+      app.gotoPage(page);
+    }
+    app.changeLeftMenu();
+    app.zoomNum = 0.6;
+  </script>
+</html>
